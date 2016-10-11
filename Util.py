@@ -236,4 +236,4 @@ def filter_tags(htmlstr):
 
 
 if __name__ == '__main__':
-    getid()
+    getidcard()
