@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
-#加载webdriver模块
+# 加载webdriver模块
 from selenium import webdriver
 from time import sleep
 import random
 from math import floor
 from modern import session, Users, UsersInfo
-from Util import parse_config, get_redis, getsmscode
+from Util import parse_config, get_redis, getsmscode, getidcard
 
 __author__ = 'yingxue'
 
@@ -37,6 +37,8 @@ else:
 
 domain = config.get('common', 'domain')
 password = config.get('user', 'password')
+
+
 # 注册
 def register():
     # 使用Chrome浏览器
@@ -71,22 +73,27 @@ def register():
     print '登录成功......'
     sleep(0.5)
     print '正在跳转到实名认证页面......'
-    sleep(5)
+    sleep(3)
     # 填写真实姓名
     driver.find_element_by_id("realName").send_keys(unicode(config.get('verified', 'realName')).decode("utf-8"))
     # 填写身份证号
-    driver.find_element_by_id("idCard").send_keys(config.get('verified', 'idCard'))
+    idCard = getidcard()
+    if idCard is None:
+        driver.quit()
+        return
+    driver.find_element_by_id("idCard").send_keys(idCard)
     # 触发立即认证单击事件
     driver.find_element_by_id("realnameCertButton").click()
-    sleep(0.5)
     print '实名认证中......'
     idCardMsg = driver.find_element_by_id("idCardMsg").text
-    sleep(2)
     if not idCardMsg.strip():
         print '实名认证成功......'
     else:
         print '实名认证失败......'
-    sleep(5)
+        driver.quit()
+        return
+
+    sleep(3)
     print '开始绑卡中......'
     """
      --绑卡时获取手机短验码是由新浪方发送短信验证码,我侧无法自动获取短信验证码,故暂时不做绑卡的操作,等待解决方案
@@ -98,21 +105,23 @@ def register():
     driver.find_element_by_id("phone_no").send_keys(reservedMobile)
     # 触发发送短信验证码单击事件
     driver.find_element_by_id("get_valid_code").click()
-    sleep(5)
-    #获取绑卡时预留的银行卡手机短信验证码
+    sleep(2)
+    # 获取绑卡时预留的银行卡手机短信验证码
     smsCode = getsmscode()
     if not smsCode:
         print '获取手机短信成功......'
     else:
         print '获取手机短信失败......'
+        driver.quit()
+        return
     sleep(1)
     # 填写短信验证码
     driver.find_element_by_id("valid_code").send_keys(smsCode)
     # 触发立即绑定单击事件
     driver.find_element_by_id("bankCardSubmitBtn").click()
 
-
     driver.quit()
+
 
 # 登录
 def login():
