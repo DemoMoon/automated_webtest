@@ -210,11 +210,16 @@ def fetch(url, params={}):
     else:
         print(r.text)
 
-
 def getsmscode():
+    codes = 0
+    os.system("adb logcat -c")
     cmd = "adb logcat -d | findstr SmsInterceptReceiver"
-    sms = os.popen(cmd).read()
-    codes = re.findall(r'(\d{6}?)', sms)
+    while 1:
+        sms = os.popen(cmd).read()
+        if sms != "":
+            codes = re.findall(r'(\d{6}?)', sms)
+            break
+
     return codes[len(codes) - 1]
 
 
@@ -230,10 +235,11 @@ def getidcard():
     else:
         return None
 
+
 def filter_tags(htmlstr):
     s = re.sub(r'<(.|\n)+?>', '', htmlstr)
     return s
 
 
 if __name__ == '__main__':
-    getidcard()
+    getsmscode()
