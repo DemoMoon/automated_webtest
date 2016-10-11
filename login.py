@@ -1,0 +1,132 @@
+# -*- coding: utf-8 -*-
+#加载webdriver模块
+from selenium import webdriver
+from time import sleep
+import random
+from math import floor
+from modern import session, Users, UsersInfo
+from Util import parse_config, get_redis, getsmscode
+
+__author__ = 'yingxue'
+
+# 解析配置文件
+config = parse_config()
+# 链接Redis数据库
+redisClient = get_redis(config)
+'''
+注册前操作步骤:
+    1.查询测试用户[mobile]是否存在[wb_users表]
+    2.查询测试用户[user_id]信息是否存在[wb_users_info表]
+    3.删除测试用户信息[wb_users_info表]
+    4.删除测试用户[wb_users表]
+'''
+queryUsers = session.query(Users)
+mobileNumber = config.get('user', 'mobile')
+users = queryUsers.filter(Users.mobile == mobileNumber).scalar()
+if users is not None:
+    queryUsersInfo = session.query(UsersInfo)
+    usersInfo = queryUsersInfo.filter(UsersInfo.user_id == users.id).scalar()
+    if usersInfo is not None:
+        session.delete(usersInfo)
+        session.flush()
+    session.delete(users)
+    session.flush()
+    session.commit()
+else:
+    print '开始注册......'
+
+domain = config.get('common', 'domain')
+password = config.get('user', 'password')
+# 注册
+def register():
+    # 使用Chrome浏览器
+    driver = webdriver.Chrome()
+    # 测试网址
+    driver.get(domain)
+    assert '铂诺' in driver.title
+    # 从首页跳转到注册页面
+    driver.find_element_by_xpath("//a[@href='" + domain + "/auth/register']").click()
+    sleep(2)
+    # 随机起一个昵称，e.g：test002
+    driver.find_element_by_id("nickname").send_keys('test' + str(floor(random.random() * 1000)))
+    # 填写配置的手机号
+    driver.find_element_by_id("mobile").send_keys(mobileNumber)
+    # 填写登录密码
+    driver.find_element_by_id("password").send_keys(password)
+    # 填写确认密码
+    driver.find_element_by_id("password2").send_keys(password)
+    # 触发发送短信验证码单击事件
+    driver.find_element_by_id("getMobileVerfiyButton").click()
+    sleep(2)
+    # 填写手机短信验证码
+    driver.find_element_by_id("mobileVerify").send_keys(redisClient.get('sms_verify' + mobileNumber))
+    # 填写推荐人
+    driver.find_element_by_id("invitorMobile").send_keys("15650787219")
+    # 触发注册单击事件
+    driver.find_element_by_id("regButton").click()
+    print '注册中......'
+    sleep(0.5)
+    print '注册成功......'
+    sleep(0.5)
+    print '登录成功......'
+    sleep(0.5)
+    print '正在跳转到实名认证页面......'
+    sleep(5)
+    # 填写真实姓名
+    driver.find_element_by_id("realName").send_keys(unicode(config.get('verified', 'realName')).decode("utf-8"))
+    # 填写身份证号
+    driver.find_element_by_id("idCard").send_keys(config.get('verified', 'idCard'))
+    # 触发立即认证单击事件
+    driver.find_element_by_id("realnameCertButton").click()
+    sleep(0.5)
+    print '实名认证中......'
+    idCardMsg = driver.find_element_by_id("idCardMsg").text
+    sleep(2)
+    if not idCardMsg.strip():
+        print '实名认证成功......'
+    else:
+        print '实名认证失败......'
+    sleep(5)
+    print '开始绑卡中......'
+    """
+     --绑卡时获取手机短验码是由新浪方发送短信验证码,我侧无法自动获取短信验证码,故暂时不做绑卡的操作,等待解决方案
+    """
+    # 填写储蓄卡卡号
+    driver.find_element_by_id("bank_account_no").send_keys(config.get('bankCard', 'cardNumber'))
+    reservedMobile = config.get('bankCard', 'reservedMobile')
+    # 填写银行预留手机号
+    driver.find_element_by_id("phone_no").send_keys(reservedMobile)
+    # 触发发送短信验证码单击事件
+    driver.find_element_by_id("get_valid_code").click()
+    sleep(5)
+    #获取绑卡时预留的银行卡手机短信验证码
+    smsCode = getsmscode()
+    if not smsCode:
+        print '获取手机短信成功......'
+    else:
+        print '获取手机短信失败......'
+    sleep(1)
+    # 填写短信验证码
+    driver.find_element_by_id("valid_code").send_keys(smsCode)
+    # 触发立即绑定单击事件
+    driver.find_element_by_id("bankCardSubmitBtn").click()
+
+
+    driver.quit()
+
+# 登录
+def login():
+    driver = webdriver.Chrome()
+    driver.get(domain)
+    assert '铂诺' in driver.title
+    driver.find_element_by_link_text("登录").click()
+    driver.find_element_by_id('mobile').send_keys(config.get('common', 'mobile'))
+    driver.find_element_by_id('password').send_keys(config.get('common', 'password'))
+    driver.find_element_by_id('loginButton').click()
+    assert '铂诺' in driver.title
+    sleep(2)
+    driver.quit()
+
+
+if __name__ == '__main__':
+    register()
