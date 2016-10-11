@@ -214,5 +214,5 @@ def fetch(url, params={}):
 def getsmscode():
     cmd = "adb logcat -d | findstr SmsInterceptReceiver"
     sms = os.popen(cmd).read()
-    codes = re.findall(r"(\d{6}?)", sms)
+    codes = re.findall(r'(\d{6}?)', sms)
     return codes[len(codes) - 1]
