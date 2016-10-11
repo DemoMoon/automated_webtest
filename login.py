@@ -79,9 +79,11 @@ def register():
     # 填写身份证号
     idCard = getidcard()
     if idCard is None:
+        # 截图功能保留到当前目录
+        driver.save_screenshot("idCard_error.png")
         driver.quit()
         return
-    driver.find_element_by_id("idCard").send_keys(idCard)
+    driver.find_element_by_id("idCard").send_keys("123")
     # 触发立即认证单击事件
     driver.find_element_by_id("realnameCertButton").click()
     print '实名认证中......'
@@ -90,6 +92,8 @@ def register():
         print '实名认证成功......'
     else:
         print '实名认证失败......'
+        #截图功能保留到当前目录
+        driver.save_screenshot("realNameCert_error.png")
         driver.quit()
         return
 
@@ -112,6 +116,8 @@ def register():
         print '获取手机短信成功......'
     else:
         print '获取手机短信失败......'
+        # 截图功能保留到当前目录
+        driver.save_screenshot("bindCard_error.png")
         driver.quit()
         return
     sleep(1)
