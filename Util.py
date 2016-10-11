@@ -10,6 +10,7 @@ import ujson
 import sys
 import os
 import re
+import httplib
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
@@ -209,8 +210,30 @@ def fetch(url, params={}):
     else:
         print(r.text)
 
+
 def getsmscode():
     cmd = "adb logcat -d | findstr SmsInterceptReceiver"
     sms = os.popen(cmd).read()
     codes = re.findall(r'(\d{6}?)', sms)
     return codes[len(codes) - 1]
+
+
+def getidcard():
+    conn = httplib.HTTPConnection("192.168.1.166:8000")
+    conn.request("GET", "/id.php")
+    r1 = conn.getresponse()
+    data2 = filter_tags(r1.read()).strip()
+    conn.close()
+    if r1.status == 200:
+        data2 = re.search(r"\d{17}(\d|X|x)", data2).group()
+        return data2
+    else:
+        return None
+
+def filter_tags(htmlstr):
+    s = re.sub(r'<(.|\n)+?>', '', htmlstr)
+    return s
+
+
+if __name__ == '__main__':
+    getid()
