@@ -209,8 +209,6 @@ def fetch(url, params={}):
     else:
         print(r.text)
 
-
-# 获取手机短信验证码
 def getsmscode():
     cmd = "adb logcat -d | findstr SmsInterceptReceiver"
     sms = os.popen(cmd).read()
