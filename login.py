@@ -105,7 +105,7 @@ def register():
     driver.find_element_by_id("phone_no").send_keys(reservedMobile)
     # 触发发送短信验证码单击事件
     driver.find_element_by_id("get_valid_code").click()
-    sleep(2)
+    sleep(3)
     # 获取绑卡时预留的银行卡手机短信验证码
     smsCode = getsmscode()
     if not smsCode:
