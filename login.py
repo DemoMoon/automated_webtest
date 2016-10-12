@@ -135,17 +135,17 @@ def register():
     driver.find_element_by_id("phone_no").send_keys(reservedMobile)
     # 触发发送短信验证码单击事件
     driver.find_element_by_id("get_valid_code").click()
-    sleep(3)
     # 获取绑卡时预留的银行卡手机短信验证码
     smsCode = getsmscode()
-    if not smsCode:
-        print '获取手机短信成功......'
-    else:
+    # print smsCode
+    if not smsCode.strip():
         print '获取手机短信失败......'
         # 截图功能保留到当前目录
         driver.save_screenshot("bindCard_error.png")
         driver.quit()
         return
+    else:
+        print '获取手机短信成功......'
     sleep(1)
     # 填写短信验证码
     driver.find_element_by_id("valid_code").send_keys(smsCode)
