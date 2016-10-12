@@ -103,7 +103,7 @@ def register():
         driver.save_screenshot("idCard_error.png")
         driver.quit()
         return
-    driver.find_element_by_id("idCard").send_keys("123")
+    driver.find_element_by_id("idCard").send_keys(idCard)
     # 触发立即认证单击事件
     driver.find_element_by_id("realnameCertButton").click()
     print '实名认证中......'
