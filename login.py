@@ -6,6 +6,7 @@ import random
 from math import floor
 from modern import session, Users, UsersInfo
 from Util import parse_config, get_redis, getsmscode, getidcard
+from selenium.webdriver.support.select import Select
 
 __author__ = 'yingxue'
 
@@ -38,6 +39,7 @@ else:
 domain = config.get('common', 'domain')
 password = config.get('user', 'password')
 title = config.get('common', 'title')
+provinceName = config.get('common', 'provinceName')
 
 
 # 注册
@@ -125,6 +127,10 @@ def register():
     # 填写储蓄卡卡号
     driver.find_element_by_id("bank_account_no").send_keys(config.get('bankCard', 'cardNumber'))
     reservedMobile = config.get('bankCard', 'reservedMobile')
+    # 添加自动选择默认的某一个城市的功能
+    sel = driver.find_element_by_xpath("//select[@id='province']")
+    Select(sel).select_by_value(provinceName)
+    sleep(1)
     # 填写银行预留手机号
     driver.find_element_by_id("phone_no").send_keys(reservedMobile)
     # 触发发送短信验证码单击事件
