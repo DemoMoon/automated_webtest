@@ -37,6 +37,7 @@ else:
 
 domain = config.get('common', 'domain')
 password = config.get('user', 'password')
+title = config.get('common', 'title')
 
 
 # 注册
@@ -45,14 +46,32 @@ def register():
     driver = webdriver.Chrome()
     # 测试网址
     driver.get(domain)
-    assert '铂诺' in driver.title
+    assert title in driver.title
     # 从首页跳转到注册页面
     driver.find_element_by_xpath("//a[@href='" + domain + "/auth/register']").click()
     sleep(2)
     # 随机起一个昵称，e.g：test002
     driver.find_element_by_id("nickname").send_keys('test' + str(floor(random.random() * 1000)))
+    nicknameMsg = driver.find_element_by_id("nicknameMsg").text
+    if not nicknameMsg.strip():
+        print '合法昵称......'
+    else:
+        print '非合法昵称......'
+        # 截图功能保留到当前目录
+        driver.save_screenshot("validate_error.png")
+        driver.quit()
+        return
     # 填写配置的手机号
     driver.find_element_by_id("mobile").send_keys(mobileNumber)
+    mobileMsg = driver.find_element_by_id("mobileMsg").text
+    if not mobileMsg.strip():
+        print '合法手机号......'
+    else:
+        print '非合法手机号......'
+        # 截图功能保留到当前目录
+        driver.save_screenshot("validate_error.png")
+        driver.quit()
+        return
     # 填写登录密码
     driver.find_element_by_id("password").send_keys(password)
     # 填写确认密码
@@ -63,7 +82,8 @@ def register():
     # 填写手机短信验证码
     driver.find_element_by_id("mobileVerify").send_keys(redisClient.get('sms_verify' + mobileNumber))
     # 填写推荐人
-    driver.find_element_by_id("invitorMobile").send_keys("15650787219")
+    driver.find_element_by_id("invitorMobile").send_keys("18801485734")
+    sleep(1)
     # 触发注册单击事件
     driver.find_element_by_id("regButton").click()
     print '注册中......'
