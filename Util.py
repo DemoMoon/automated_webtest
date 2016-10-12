@@ -211,16 +211,17 @@ def fetch(url, params={}):
         print(r.text)
 
 def getsmscode():
-    codes = 0
+    smscode = ""
     os.system("adb logcat -c")
-    cmd = "adb logcat -d | findstr SmsInterceptReceiver"
-    while 1:
-        sms = os.popen(cmd).read()
-        if sms != "":
-            codes = re.findall(r'(\d{6}?)', sms)
-            break
-
-    return codes[len(codes) - 1]
+    cmd = "adb logcat -d | findstr E/SmsInterceptReceiver"
+    while True:
+        content = os.popen(cmd).read()
+        if len(content) > 0:
+            smscode = re.findall(r"(\d{6}?)", content)
+            smscode = smscode[len(smscode) - 1]
+            if len(smscode) >= 6:
+                break
+    return smscode
 
 
 def getidcard():
