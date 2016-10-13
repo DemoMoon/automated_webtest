@@ -1,5 +1,6 @@
-__author__ = 'tianpengqi'
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
+__author__ = 'yingxue'
 
 import base64
 import hashlib
@@ -216,7 +217,7 @@ def getsmscode():
     cmd = "adb logcat -d | findstr E/SmsInterceptReceiver"
     while True:
         content = os.popen(cmd).read()
-        if len(content) > 0 and "新浪支付" in content:
+        if len(content) > 0 and content.find(u"新浪支付") != -1:
             smscode = re.findall(r"(\d{6}?)", content)
             smscode = smscode[len(smscode) - 1]
             if len(smscode) >= 6:
