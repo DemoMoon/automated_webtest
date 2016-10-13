@@ -125,7 +125,9 @@ def register():
      --绑卡时获取手机短验码是由新浪方发送短信验证码,我侧无法自动获取短信验证码,故暂时不做绑卡的操作,等待解决方案
     """
     # 填写储蓄卡卡号
-    driver.find_element_by_id("bank_account_no").send_keys(config.get('bankCard', 'cardNumber'))
+    bankCardNum = config.get('bankCard', 'cardNumber')
+    bankCardNum = bankCardNum[:-4] + str(random.randint(1000, 9999))
+    driver.find_element_by_id("bank_account_no").send_keys(bankCardNum)
     reservedMobile = config.get('bankCard', 'reservedMobile')
     # 添加自动选择默认的某一个城市的功能
     sel = driver.find_element_by_xpath("//select[@id='province']")
@@ -151,19 +153,29 @@ def register():
     driver.find_element_by_id("valid_code").send_keys(smsCode)
     # 触发立即绑定单击事件
     driver.find_element_by_id("bankCardSubmitBtn").click()
-    sleep(2)
-    phonenoMsg = driver.find_element_by_id("phone_noMsg").text
-    if not phonenoMsg.strip():
-        print '银行预留手机号正确......'
+    # sleep(2)
+    # phonenoMsg = driver.find_element_by_id("phone_noMsg")
+    # if phonenoMsg is None:
+    #     print "绑卡成功"
+    # else:
+    #     phonenoMsg = phonenoMsg.text
+    #     if not phonenoMsg.strip():
+    #         print '银行预留手机号正确......'
+    #     else:
+    #         print phonenoMsg
+    #         print "绑卡失败"
+    #         # 截图功能保留到当前目录
+    #         driver.save_screenshot("bindCard_validate_error.png")
+    #         driver.quit()
+    #         return
+    sleep(3)
+    setPassword = driver.find_elements_by_class_name("btn_1")
+    if len(setPassword) > 0:
+        setPassword[0].click()
     else:
-        print phonenoMsg
-        print "绑卡失败"
-        # 截图功能保留到当前目录
-        driver.save_screenshot("bindCard_validate_error.png")
-        driver.quit()
-        return
-    sleep(1)
-    print "绑卡成功"
+        print "设置交易页面跳转失败"
+
+    sleep(3)
     driver.quit()
 
 
