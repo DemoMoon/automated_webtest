@@ -169,6 +169,7 @@ def register():
     #         driver.quit()
     #         return
     sleep(3)
+    print "正在跳转到设置支付交易密码页面......"
     setPassword = driver.find_elements_by_class_name("btn_1")
     if len(setPassword) > 0:
         setPassword[0].click()
@@ -176,6 +177,41 @@ def register():
         print "设置交易页面跳转失败"
 
     sleep(3)
+    print "开始设置支付交易密码......"
+    # 填写银行预留手机号
+    driver.find_element_by_id("tela").send_keys(reservedMobile)
+    sleep(0.5)
+    get_check_code = driver.find_elements_by_class_name("get_check_code")
+    if len(get_check_code) > 0:
+        get_check_code[0].click()
+    else:
+        print "短信获取click事件失败"
+    print "获取实名认证时的手机短信密码中......"
+    smsCode = getsmscode()
+    # print smsCode
+    if not smsCode.strip():
+        print '获取手机短信失败......'
+        # 截图功能保留到当前目录
+        driver.save_screenshot("setpassword_error.png")
+        driver.quit()
+        return
+    else:
+        print '获取手机短信成功......'
+    sleep(1)
+    # 输入验证码
+    driver.find_element_by_id("J-sms").send_keys(smsCode)
+    sleep(0.5)
+    # 输入支付密码
+    driver.find_element_by_id("J-psw").send_keys("a1234567")
+    sleep(0.5)
+    # check 输入支付密码
+    driver.find_element_by_id("J-check_psw").send_keys("a1234567")
+    sleep(3)
+    # 触发立即绑定单击事件
+    driver.find_element_by_xpath("//button[@type='submit']").click()
+    print "设置支付交易密码成功......"
+    sleep(3)
+    print "等待页面跳转中......"
     driver.quit()
 
 
