@@ -216,7 +216,7 @@ def getsmscode():
     cmd = "adb logcat -d | findstr E/SmsInterceptReceiver"
     while True:
         content = os.popen(cmd).read()
-        if len(content) > 0:
+        if len(content) > 0 and "新浪支付" in content:
             smscode = re.findall(r"(\d{6}?)", content)
             smscode = smscode[len(smscode) - 1]
             if len(smscode) >= 6:
