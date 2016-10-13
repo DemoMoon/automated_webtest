@@ -215,13 +215,17 @@ def getsmscode():
     smscode = ""
     os.system("adb logcat -c")
     cmd = "adb logcat -d | findstr E/SmsInterceptReceiver"
-    while True:
+    num = 0
+    while True and num < 50:
         content = os.popen(cmd).read()
         if len(content) > 0 and content.find(u"新浪支付") != -1:
             smscode = re.findall(r"(\d{6}?)", content)
             smscode = smscode[len(smscode) - 1]
             if len(smscode) >= 6:
                 break
+        else:
+            num += 1
+
     return smscode
 
 
@@ -244,4 +248,4 @@ def filter_tags(htmlstr):
 
 
 if __name__ == '__main__':
-    getsmscode()
+    print getsmscode()
