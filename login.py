@@ -153,6 +153,7 @@ def register():
     driver.find_element_by_id("valid_code").send_keys(smsCode)
     # 触发立即绑定单击事件
     driver.find_element_by_id("bankCardSubmitBtn").click()
+    print "绑卡成功"
     # sleep(2)
     # phonenoMsg = driver.find_element_by_id("phone_noMsg")
     # if phonenoMsg is None:
