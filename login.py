@@ -151,7 +151,19 @@ def register():
     driver.find_element_by_id("valid_code").send_keys(smsCode)
     # 触发立即绑定单击事件
     driver.find_element_by_id("bankCardSubmitBtn").click()
-
+    sleep(2)
+    phonenoMsg = driver.find_element_by_id("phone_noMsg").text
+    if not phonenoMsg.strip():
+        print '银行预留手机号正确......'
+    else:
+        print phonenoMsg
+        print "绑卡失败"
+        # 截图功能保留到当前目录
+        driver.save_screenshot("bindCard_validate_error.png")
+        driver.quit()
+        return
+    sleep(1)
+    print "绑卡成功"
     driver.quit()
 
 
